@@ -1,6 +1,6 @@
 from spellchecker import SpellChecker
 spell = SpellChecker(language=None)
-spell.word_frequency.load_text_file("../resources/address.txt")
+spell.word_frequency.load_text_file("../resources/tehran-address")
 spell.export("../resources/spellcheker")
 spell = SpellChecker(language=None, local_dictionary="../resources/spellcheker")
 

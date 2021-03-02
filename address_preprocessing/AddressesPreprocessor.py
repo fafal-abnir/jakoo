@@ -1,6 +1,6 @@
 from address_preprocessing.TextPreprocessing import preprocess_address
 
-with open('../resources/address.txt') as f:
+with open('../resources/tehran-address') as f:
     lines = f.readlines()
 c = 0
 with open('../resources/preprocessed.txt', 'a') as the_file:

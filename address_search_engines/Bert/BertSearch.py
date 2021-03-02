@@ -5,16 +5,18 @@ import numpy as np
 import pandas as pd
 from sentence_transformers import SentenceTransformer, util
 from sklearn.neighbors import KDTree
-
+import re
 
 class BertSearch:
     model = SentenceTransformer('distilbert-base-nli-mean-tokens')
     KD_tree_index = None
     address_keys = []
-    address_values = []
-    l2Norm_address_values = []
+    # self.address_values = []
+    # self.l2Norm_address_values = []
 
     def __init__(self, address_file_name):
+        self.address_values = []
+        self.l2Norm_address_values = []
         print("Start loading address")
         start_time = time.time()
         f = h5py.File('../../resources/hdf5/{}.hdf5'.format(address_file_name), 'r')
@@ -67,20 +69,20 @@ class BertSearch:
         print(self.extract('تهران آزادی'))
 
 
-def main():
-    search_engine = BertSearch("tehran-preprocessed")
-    while True:
-        address = str(input('Please enter address: (enter 0 to end): '))
-        if address == '0':
-            break
-        start_time=time.time()
-        print(search_engine.cosine_similarity_T(10, address))
-        print("Brute force {}".format(time.time()-start_time))
-        start_time = time.time()
-        print(search_engine.euclidean_similarity_L2norm(10, address))
-        print("Kdtree force {}".format(time.time() - start_time))
-
-
-
-if __name__ == '__main__':
-    main()
+# def main():
+#     search_engine = BertSearch("tehran-preprocessed")
+#     while True:
+#         address = str(input('Please enter address: (enter 0 to end): '))
+#         if address == '0':
+#             break
+#         start_time=time.time()
+#         print(search_engine.cosine_similarity_T(10, address))
+#         print("Brute force {}".format(time.time()-start_time))
+#         start_time = time.time()
+#         print(search_engine.euclidean_similarity_L2norm(10, address))
+#         print("Kdtree force {}".format(time.time() - start_time))
+#
+#
+#
+# if __name__ == '__main__':
+#     main()

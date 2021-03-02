@@ -256,3 +256,5 @@ dmypy.json
 *.wps
 
 # End of https://www.toptal.com/developers/gitignore/api/python,data,pycharm+all,text
+
+/resources
