@@ -1,1 +1,2 @@
-# jakoo
+# Jakoo
+Jakoo is a Persian address search engine for client queries, motivated by recent advances in natural language processing (NLP). We also set different preprocessing steps for addresses using a combination of editing spacing and phonetic algorithms.  
