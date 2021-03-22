@@ -4,7 +4,7 @@ import re
 import enchant
 
 # Build a cost dictionary, assuming Zipf's law and cost = -math.log(probability).
-spell = SpellChecker(language=None, local_dictionary="../resources/spellcheker")
+spell = SpellChecker(language=None, local_dictionary="./resources/spellcheker")
 words = dict(sorted(spell.word_frequency.dictionary.items(), key=lambda item: item[1], reverse=True))
 wordcost = dict((k, log((i + 1) * log(len(words)))) for i, k in enumerate(words))
 maxword = max(len(x) for x in words)
@@ -77,7 +77,9 @@ def infer_duplicate_space(str):
 
 
 def basic_cleaning(str):
-    return re.sub(r'[^\w]', '', str)
+    str = re.sub(r'[^\w]', '', str)
+    str = re.sub(r"\s+","",str)
+    return str
 
 
 def spell_correction(str):
@@ -105,20 +107,20 @@ def preprocess_address(str):
     return final_result
 
 
-while True:
-    address = str(input('Please enter a String to see the correction: (enter 0 to end): '))
-    if address == '0':
-        break
-    # print('wordninja => {}'.format(infer_spaces(word)))
-    clean_str = basic_cleaning(address)
-    print('basic_cleaning => {}'.format(clean_str))
-    inferred_spaces = infer_spaces(clean_str)
-    print('inferred_spaces => {}'.format(inferred_spaces))
-    spell_corrected = spell_correction(inferred_spaces)
-    print('spell correction => {}'.format(spell_corrected))
-    space_corrected = infer_duplicate_space(inferred_spaces)
-    print('duplicate space correction => {}'.format(space_corrected))
-    final_result = infer_duplicate_space(space_corrected)
-    print('final result => {}'.format(final_result))
-    print('last token candidate => {}'.format(last_token_candidates(final_result)))
-
+# while True:
+#     address = str(input('Please enter a String to see the correction: (enter 0 to end): '))
+#     if address == '0':
+#         break
+#     # print('wordninja => {}'.format(infer_spaces(word)))
+#     clean_str = basic_cleaning(address)
+#     print('basic_cleaning => {}'.format(clean_str))
+#     inferred_spaces = infer_spaces(clean_str)
+#     print('inferred_spaces => {}'.format(inferred_spaces))
+#     spell_corrected = spell_correction(inferred_spaces)
+#     print('spell correction => {}'.format(spell_corrected))
+#     space_corrected = infer_duplicate_space(inferred_spaces)
+#     print('duplicate space correction => {}'.format(space_corrected))
+#     final_result = infer_duplicate_space(space_corrected)
+#     print('final result => {}'.format(final_result))
+#     print('last token candidate => {}'.format(last_token_candidates(final_result)))
+#

@@ -3,38 +3,50 @@ import time
 import h5py
 import numpy as np
 import pandas as pd
+from enum import Enum
 from sentence_transformers import SentenceTransformer, util
-from sklearn.neighbors import KDTree
-import re
+from sklearn.neighbors import KDTree, BallTree
+
+
+class IndexType(Enum):
+    BallTree = "BallTree"
+    KDTree = "KDTree"
+    # RTree = "RTree"
+
 
 class BertSearch:
-    model = SentenceTransformer('distilbert-base-nli-mean-tokens')
-    KD_tree_index = None
+    model = SentenceTransformer('distiluse-base-multilingual-cased-v2')
     address_keys = []
-    # self.address_values = []
-    # self.l2Norm_address_values = []
 
-    def __init__(self, address_file_name):
+    def __init__(self, address_file_name, index_type=IndexType.BallTree):
+        if not isinstance(index_type, IndexType):
+            raise TypeError('index type must be an instance of IndexType Enum')
+        print(index_type.value)
         self.address_values = []
         self.l2Norm_address_values = []
         print("Start loading address")
         start_time = time.time()
-        f = h5py.File('../../resources/hdf5/{}.hdf5'.format(address_file_name), 'r')
-        address_count = 0
-        x = f.keys()
-        for a in x:
-            self.address_values.append(f[a].value)
-            self.l2Norm_address_values.append(np.array(f[a].value / np.linalg.norm(f[a].value)))
-            self.address_keys.append(a)
-            if (address_count % 1000) == 0:
-                print("Load {} address".format(address_count))
-            address_count = address_count + 1
-        f.close()
-        print("Load address in {} s".format(time.time() - start_time))
-        print("Start creating index")
-        start_time = time.time()
-        self.KD_tree_index = KDTree(np.array(self.l2Norm_address_values), leaf_size=400)
-        print("Load address in {} s".format(time.time() - start_time))
+        with h5py.File('{}.hdf5'.format(address_file_name), 'r') as f:
+            address_count = 0
+            x = f.keys()
+            for a in x:
+                try:
+                    self.address_values.append(f[a].value)
+                    self.l2Norm_address_values.append(np.array(f[a].value / np.linalg.norm(f[a].value)))
+                    self.address_keys.append(a)
+                    if (address_count % 1000) == 0:
+                        print("Load {} address".format(address_count))
+                    address_count = address_count + 1
+                except:
+                    print(a)
+            print("Load address in {} s".format(time.time() - start_time))
+            print("Start creating index with Type: {}".format(index_type.value))
+            start_time = time.time()
+            if index_type == IndexType.KDTree:
+                self.index_tree = KDTree(np.array(self.l2Norm_address_values), leaf_size=400)
+            elif index_type == IndexType.BallTree:
+                self.index_tree = BallTree(np.array(self.l2Norm_address_values), leaf_size=400)
+            print("Load address in {} s".format(time.time() - start_time))
 
     def extract(self, query):
         return self.model.encode(query)
@@ -54,10 +66,10 @@ class BertSearch:
             a.loc[j, 'Score'] = simScore
         return a
 
-    def euclidean_similarity_L2norm(self, k, query):
+    def top_k_with_cosine_similarity(self, k, query):
         query_vector = self.model.encode(query)
         query_vector = (query_vector / np.linalg.norm(query_vector))
-        distances, indexes = self.KD_tree_index.query([query_vector], k)
+        distances, indexes = self.index_tree.query([query_vector], k)
         a = pd.DataFrame()
         for i in range(len(distances[0])):
             a.loc[i, 'index'] = str(i)
@@ -69,20 +81,3 @@ class BertSearch:
         print(self.extract('تهران آزادی'))
 
 
-# def main():
-#     search_engine = BertSearch("tehran-preprocessed")
-#     while True:
-#         address = str(input('Please enter address: (enter 0 to end): '))
-#         if address == '0':
-#             break
-#         start_time=time.time()
-#         print(search_engine.cosine_similarity_T(10, address))
-#         print("Brute force {}".format(time.time()-start_time))
-#         start_time = time.time()
-#         print(search_engine.euclidean_similarity_L2norm(10, address))
-#         print("Kdtree force {}".format(time.time() - start_time))
-#
-#
-#
-# if __name__ == '__main__':
-#     main()
